@@ -14,3 +14,11 @@ cdk synth
 cdk deploy
 
 Note: You must have appropriate creds setup for the AWS account that is being used
+
+# Web Socket testing
+
+You can test web socket connection using wscat given the web socket url that is exported when a deployment occurs
+
+```
+wscat <url>
+```
