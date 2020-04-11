@@ -16,11 +16,9 @@ export interface AuthenticationLambdaProps {
     readonly userPoolClientId: string;
     readonly credentialsBucket: s3.Bucket;
 }
-export class AuthenticationLambda extends cdk.Construct {
+export class AuthenticationLambda extends lambda.Function {
   constructor(scope: cdk.Construct, id: string, props: AuthenticationLambdaProps) {
-    super(scope, id);
-
-    const authenticationLambda = new lambda.Function(this, "authenticationLambda", {
+    super(scope, id, {
       code: lambda.Code.fromAsset(path.join(__dirname, '../../authentication-lambda')),
       handler: "app.lambdaHandler",
       runtime: lambda.Runtime.NODEJS_12_X,
@@ -33,11 +31,13 @@ export class AuthenticationLambda extends cdk.Construct {
         "USER_POOL_CLIENT_ID": props.userPoolClientId,
         "BUCKET_NAME": props.credentialsBucket.bucketName
       },
-      timeout: cdk.Duration.seconds(120)
+      timeout: cdk.Duration.seconds(120),
+      functionName: "AuthenticationLambda",
+      description: "Reads a request from SNS, authenticates with cognito, and then pushes credentials to S3"
     });
 
-    props.stateTable.grant(authenticationLambda, "dynamodb:PutItem");
-    props.credentialsBucket.grantPut(authenticationLambda);
+    props.stateTable.grant(this, "dynamodb:PutItem");
+    props.credentialsBucket.grantPut(this);
 
     const authPolicy = new iam.PolicyStatement({
       actions: ["cognito-idp:AdminSetUserPassword", "cognito-idp:InitiateAuth"],
@@ -45,7 +45,7 @@ export class AuthenticationLambda extends cdk.Construct {
       resources: ["*"]
     });
     
-    authenticationLambda.addToRolePolicy(authPolicy);
-    authenticationLambda.addEventSource(new lambdaEventSource.SnsEventSource(props.snsTopic));
+    this.addToRolePolicy(authPolicy);
+    this.addEventSource(new lambdaEventSource.SnsEventSource(props.snsTopic));
   }
 }

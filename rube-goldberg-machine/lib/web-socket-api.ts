@@ -19,7 +19,9 @@ export class WebSocketApi extends apigateway.CfnApiV2 {
       partitionKey: {
         name: "connectionId",
         type: dynamodb.AttributeType.STRING
-      }
+      },
+      readCapacity: 1,
+      writeCapacity: 1
     });
 
     const onConnectLambda = new OnConnectLambda(this, "OnConnectLambda", {
@@ -86,6 +88,5 @@ export class WebSocketApi extends apigateway.CfnApiV2 {
     const webSocketApiOutput = new cdk.CfnOutput(this, "WebSocketApiEndpoint", {
       value: "wss://" + this.ref + ".execute-api.us-east-1.amazonaws.com/" + thisStage.stageName + "/"
     });
-    
   }
 }

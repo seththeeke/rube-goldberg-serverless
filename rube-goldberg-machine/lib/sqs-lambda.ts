@@ -11,13 +11,11 @@ export interface SQSLambdaProps {
     readonly sqsQueue: sqs.Queue;
     readonly userPool: cognito.UserPool;
 }
-export class SQSLambda extends cdk.Construct {
+export class SQSLambda extends lambda.Function {
   readonly cognitoProtectedApiGateway: apigateway.RestApi;
 
   constructor(scope: cdk.Construct, id: string, props: SQSLambdaProps) {
-    super(scope, id);
-
-    const sqsLambda = new lambda.Function(this, "sqsLambda", {
+    super(scope, id, {
       code: lambda.Code.fromAsset(path.join(__dirname, '../../sqs-lambda')),
       handler: "app.lambdaHandler",
       runtime: lambda.Runtime.NODEJS_12_X,
@@ -25,11 +23,14 @@ export class SQSLambda extends cdk.Construct {
       environment: {
         "TABLE_NAME": props.stateTable.tableName,
         "SQS_QUEUE_URL": props.sqsQueue.queueUrl
-      }
+      },
+      timeout: cdk.Duration.seconds(120),
+      functionName: "SQSLambda",
+      description: "Invoked through a cognito protected api and posts the request to an SQS queue"
     });
 
-    props.stateTable.grant(sqsLambda, "dynamodb:PutItem");
-    props.sqsQueue.grantSendMessages(sqsLambda);
+    props.stateTable.grant(this, "dynamodb:PutItem");
+    props.sqsQueue.grantSendMessages(this);
 
     this.cognitoProtectedApiGateway = new apigateway.RestApi(this, "CognitoProtectedApi");
     this.cognitoProtectedApiGateway.root.addMethod('ANY');
@@ -40,10 +41,10 @@ export class SQSLambda extends cdk.Construct {
         identitySource: 'method.request.header.Authorization',
         providerArns: [props.userPool.userPoolArn.toString()],
         restApiId: this.cognitoProtectedApiGateway.restApiId,
-        type: apigateway.AuthorizationType.COGNITO
+        type: apigateway.AuthorizationType.COGNITO,
     });
     
-    const sqsLambdaIntegration = new apigateway.LambdaIntegration(sqsLambda);
+    const sqsLambdaIntegration = new apigateway.LambdaIntegration(this);
     sqsLambdaResource.addMethod('POST', sqsLambdaIntegration, {
         authorizationType: apigateway.AuthorizationType.COGNITO,
         authorizer: {

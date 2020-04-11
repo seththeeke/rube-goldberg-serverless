@@ -20,7 +20,10 @@ export class StateChangeListenerLambda extends lambda.Function {
         environment: {
           "TABLE_NAME": props.connectionTable.tableName,
           "ENDPOINT": props.endpoint
-        }
+        },
+        timeout: cdk.Duration.seconds(300),
+        functionName: "RequestStateDataChangeListener",
+        description: "Consumes data change events from a dynamodb stream and propogates the results to any connections to the web socket api"
     });
     props.connectionTable.grant(this, "dynamodb:DeleteItem", "dynamodb:Scan");
 

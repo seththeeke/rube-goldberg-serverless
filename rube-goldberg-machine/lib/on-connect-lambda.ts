@@ -15,7 +15,9 @@ export class OnConnectLambda extends lambda.Function {
         tracing: lambda.Tracing.ACTIVE,
         environment: {
           "TABLE_NAME": props.connectionTable.tableName
-        }
+        },
+        functionName: "WebSocketOnConnectLambda",
+        description: "Serves connection requests to the web socket api, creating an entry in the connection table to be used for sending messages to clients"
     });
     props.connectionTable.grant(this, "dynamodb:PutItem");
   }

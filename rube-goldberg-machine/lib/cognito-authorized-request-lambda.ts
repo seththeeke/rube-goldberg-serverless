@@ -21,7 +21,9 @@ export class CognitoAuthorizedRequestLambda extends lambda.Function {
           "TABLE_NAME": props.stateTable.tableName,
           "SQS_LAMBA_ENDPOINT": props.sqsLambdaEndpoint
         },
-        timeout: cdk.Duration.seconds(120)
+        timeout: cdk.Duration.seconds(120),
+        functionName: "CognitoAuthorizedRequestLambda",
+        description: "Listens to credential put requests to S3 and then makes a request to a cognito authorized endpoint"
     });
 
     props.stateTable.grant(this, "dynamodb:PutItem");

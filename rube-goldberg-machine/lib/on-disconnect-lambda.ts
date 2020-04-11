@@ -15,7 +15,9 @@ export class OnDisconnectLambda extends lambda.Function {
         tracing: lambda.Tracing.ACTIVE,
         environment: {
           "TABLE_NAME": props.connectionTable.tableName
-        }
+        },
+        functionName: "WebSocketOnDisconnectLambda",
+        description: "Handler for on disconnect events to the web socket api and deletes the connection id in the table"
     });
     props.connectionTable.grant(this, "dynamodb:DeleteItem");
   }

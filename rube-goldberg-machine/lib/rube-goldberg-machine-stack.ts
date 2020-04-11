@@ -4,27 +4,33 @@ import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as cognito from '@aws-cdk/aws-cognito';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as sqs from '@aws-cdk/aws-sqs';
+import * as sfn from '@aws-cdk/aws-stepfunctions';
 import { SNSLambda } from './sns-lambda';
 import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
 import { AuthenticationLambda } from './authentication-lambda';
-import { PreTokenTriggerLambda } from './pre-token-trigger-lambda';
 import { CognitoAuthorizedRequestLambda } from './cognito-authorized-request-lambda';
 import { SQSLambda } from './sqs-lambda';
+import { StartStepFunctionLambda } from './start-step-function-lambda';
 
 export class RubeGoldbergMachineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const stateTable = new dynamodb.Table(this, "StateTable", {
+    const stateTable = new dynamodb.Table(this, "RequestStateTable", {
       partitionKey: {
         name: "requestId",
         type: dynamodb.AttributeType.STRING
       },
-      stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES
+      readCapacity: 1,
+      writeCapacity: 1,
+      stream: dynamodb.StreamViewType.NEW_AND_OLD_IMAGES,
     });
 
-    const snsTopic = new sns.Topic(this, "Topic");
+    const snsTopic = new sns.Topic(this, "RequestTopic", {
+      displayName: "RubeGoldbergServerlessRequestTopic",
+      topicName: "RubeGoldbergServerlessRequestTopic",
+    });
     const snsLambda = new SNSLambda(this, "SNSLambda", {
       stateTable,
       snsTopic
@@ -40,15 +46,10 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
 
     // Authentication Stuffz
 
-    const preTokenLambdaTrigger = new PreTokenTriggerLambda(this, "PreTokenLambdaTrigger");
-
-    const cognitoUserPool = new cognito.UserPool(this, "UserPool", {
-      userPoolName: "PrivateUserPool",
+    const cognitoUserPool = new cognito.UserPool(this, "RubeGoldbergUserPool", {
+      userPoolName: "RubeGoldbergUserPool",
       signInAliases: {
         username: true,
-      },
-      lambdaTriggers: {
-        preTokenGeneration: preTokenLambdaTrigger
       }
     });
     const client = cognitoUserPool.addClient("PrivateAppClient", {
@@ -64,7 +65,7 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       username: username
     });
 
-    const credentialsBucket = new s3.Bucket(this, "CredsBucket");
+    const credentialsBucket = new s3.Bucket(this, "CognitoCredentialsBucket");
 
     const authenticationLambda = new AuthenticationLambda(this, "AuthenticationLambda", {
       stateTable,
@@ -76,7 +77,10 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       credentialsBucket
     });
 
-    const sqsQueue = new sqs.Queue(this, "SQSQueue");
+    const sqsQueue = new sqs.Queue(this, "SQSQueue", {
+      visibilityTimeout: cdk.Duration.seconds(120),
+      queueName: "RubeGoldbergSQSQueue"
+    });
 
     const sqsLambda = new SQSLambda(this, "SQSLambda", {
       stateTable,
@@ -89,6 +93,11 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       credentialsBucket,
       sqsLambdaEndpoint: "https://" + sqsLambda.cognitoProtectedApiGateway.restApiId + ".execute-api.us-east-1.amazonaws.com/prod/sqs-lambda"
     });
-    
+
+    const startStepFunctionLambda = new StartStepFunctionLambda(this, "StartStepFunctionLambda", {
+      sqsQueue,
+      stateTable
+    });
+
   }
 }
