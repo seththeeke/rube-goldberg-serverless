@@ -8,6 +8,7 @@ import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
 import { AuthenticationLambda } from './authentication-lambda';
 import { PreTokenTriggerLambda } from './pre-token-trigger-lambda';
+import { CognitoAuthorizedRequestLambda } from './cognito-authorized-request-lambda';
 
 export class RubeGoldbergMachineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -73,7 +74,10 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       credentialsBucket
     });
 
-
+    const cognitoAuthorizedRequestLambda = new CognitoAuthorizedRequestLambda(this, "CognitoAuthorizedRequestLambda", {
+      stateTable,
+      credentialsBucket
+    });
     
   }
 }
