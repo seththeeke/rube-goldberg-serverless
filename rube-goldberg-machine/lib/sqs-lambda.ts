@@ -12,6 +12,8 @@ export interface SQSLambdaProps {
     readonly userPool: cognito.UserPool;
 }
 export class SQSLambda extends cdk.Construct {
+  readonly cognitoProtectedApiGateway: apigateway.RestApi;
+
   constructor(scope: cdk.Construct, id: string, props: SQSLambdaProps) {
     super(scope, id);
 
@@ -29,15 +31,15 @@ export class SQSLambda extends cdk.Construct {
     props.stateTable.grant(sqsLambda, "dynamodb:PutItem");
     props.sqsQueue.grantSendMessages(sqsLambda);
 
-    const cognitoProtectedApiGateway = new apigateway.RestApi(this, "CognitoProtectedApi");
-    cognitoProtectedApiGateway.root.addMethod('ANY');
-    const sqsLambdaResource = cognitoProtectedApiGateway.root.addResource('sqs-lambda');
+    this.cognitoProtectedApiGateway = new apigateway.RestApi(this, "CognitoProtectedApi");
+    this.cognitoProtectedApiGateway.root.addMethod('ANY');
+    const sqsLambdaResource = this.cognitoProtectedApiGateway.root.addResource('sqs-lambda');
 
     const cognitoAuthorizer = new apigateway.CfnAuthorizer(this, 'CognitoAuthorizer', {
         name: 'CognitoAuthorizer',
         identitySource: 'method.request.header.Authorization',
         providerArns: [props.userPool.userPoolArn.toString()],
-        restApiId: cognitoProtectedApiGateway.restApiId,
+        restApiId: this.cognitoProtectedApiGateway.restApiId,
         type: apigateway.AuthorizationType.COGNITO
     });
     

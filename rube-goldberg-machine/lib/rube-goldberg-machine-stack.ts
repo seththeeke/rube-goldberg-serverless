@@ -76,18 +76,19 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       credentialsBucket
     });
 
-    const cognitoAuthorizedRequestLambda = new CognitoAuthorizedRequestLambda(this, "CognitoAuthorizedRequestLambda", {
-      stateTable,
-      credentialsBucket
-    });
-
     const sqsQueue = new sqs.Queue(this, "SQSQueue");
 
     const sqsLambda = new SQSLambda(this, "SQSLambda", {
       stateTable,
       userPool: cognitoUserPool,
       sqsQueue
-    })
+    });
+
+    const cognitoAuthorizedRequestLambda = new CognitoAuthorizedRequestLambda(this, "CognitoAuthorizedRequestLambda", {
+      stateTable,
+      credentialsBucket,
+      sqsLambdaEndpoint: "https://" + sqsLambda.cognitoProtectedApiGateway.restApiId + ".execute-api.us-east-1.amazonaws.com/prod/sqs-lambda"
+    });
     
   }
 }

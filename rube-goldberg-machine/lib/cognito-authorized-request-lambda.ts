@@ -8,6 +8,7 @@ import path = require('path');
 export interface CognitoAuthorizedRequestLambdaProps {
     readonly stateTable: dynamodb.Table;
     readonly credentialsBucket: s3.Bucket;
+    readonly sqsLambdaEndpoint: string;
 }
 export class CognitoAuthorizedRequestLambda extends lambda.Function {
   constructor(scope: cdk.Construct, id: string, props: CognitoAuthorizedRequestLambdaProps) {
@@ -17,7 +18,8 @@ export class CognitoAuthorizedRequestLambda extends lambda.Function {
         runtime: lambda.Runtime.NODEJS_12_X,
         tracing: lambda.Tracing.ACTIVE,
         environment: {
-          "TABLE_NAME": props.stateTable.tableName
+          "TABLE_NAME": props.stateTable.tableName,
+          "SQS_LAMBA_ENDPOINT": props.sqsLambdaEndpoint
         },
         timeout: cdk.Duration.seconds(120)
     });

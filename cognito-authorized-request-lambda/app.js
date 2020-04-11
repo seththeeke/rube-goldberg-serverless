@@ -1,5 +1,6 @@
 var AWSXRay = require('aws-xray-sdk');
 var AWS = AWSXRay.captureAWS(require('aws-sdk'));
+var axios = require('axios');
 
 exports.lambdaHandler = async (event, context) => {
     try {
@@ -18,7 +19,16 @@ exports.lambdaHandler = async (event, context) => {
             };
             console.log("Getting creds from s3: " + JSON.stringify(s3Params));
             let credentials = await s3.getObject(s3Params).promise();
-            console.log(credentials.Body.toString('utf-8'));
+            let idToken = JSON.parse(credentials.Body.toString('utf-8')).IdToken;
+            console.log("Calling out to sqs lambda: " + requestId);
+            await axios({
+                method: 'post',
+                url: process.env.SQS_LAMBA_ENDPOINT,
+                data: {
+                  requestId: requestId
+                },
+                headers: {'Authorization': idToken}
+            });
         }
 
         return { statusCode: 200, body: JSON.stringify(event) };
