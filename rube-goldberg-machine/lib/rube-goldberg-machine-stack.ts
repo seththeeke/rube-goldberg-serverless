@@ -3,12 +3,14 @@ import * as sns from '@aws-cdk/aws-sns';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as cognito from '@aws-cdk/aws-cognito';
 import * as s3 from '@aws-cdk/aws-s3';
+import * as sqs from '@aws-cdk/aws-sqs';
 import { SNSLambda } from './sns-lambda';
 import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
 import { AuthenticationLambda } from './authentication-lambda';
 import { PreTokenTriggerLambda } from './pre-token-trigger-lambda';
 import { CognitoAuthorizedRequestLambda } from './cognito-authorized-request-lambda';
+import { SQSLambda } from './sqs-lambda';
 
 export class RubeGoldbergMachineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -78,6 +80,14 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       stateTable,
       credentialsBucket
     });
+
+    const sqsQueue = new sqs.Queue(this, "SQSQueue");
+
+    const sqsLambda = new SQSLambda(this, "SQSLambda", {
+      stateTable,
+      userPool: cognitoUserPool,
+      sqsQueue
+    })
     
   }
 }
