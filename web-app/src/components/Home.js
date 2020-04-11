@@ -4,11 +4,33 @@ class Home extends React.Component {
    constructor(props){
       super(props);
       this.startMachine = this.startMachine.bind(this);
+      this.ws = new WebSocket("wss://107147y1zh.execute-api.us-east-1.amazonaws.com/prod/");
    }
 
+   componentDidMount() {
+      this.ws.onopen = (evt, other) => {
+         console.log(other);
+         console.log(evt);
+         console.log('connected');
+      }
+  
+      this.ws.onmessage = event => {
+         console.log(JSON.parse(event.data));
+         let events = JSON.parse(event.data);
+         for (let event of events){
+            console.log(event.dynamodb.NewImage.state.S);
+         }
+      }
+  
+      this.ws.onclose = () => {
+         console.log('disconnected');
+      }
+   }
 
    startMachine(){
-      this.props.rubeGoldbergMachineService.startRubeGoldbergMachine();
+      this.props.rubeGoldbergMachineService.startRubeGoldbergMachine().then(function(event){
+         console.log(event);
+      }.bind(this));
    }
 
    render() {

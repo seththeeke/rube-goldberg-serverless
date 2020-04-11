@@ -20,5 +20,5 @@ Note: You must have appropriate creds setup for the AWS account that is being us
 You can test web socket connection using wscat given the web socket url that is exported when a deployment occurs
 
 ```
-wscat <url>
+wscat -c <url>
 ```
