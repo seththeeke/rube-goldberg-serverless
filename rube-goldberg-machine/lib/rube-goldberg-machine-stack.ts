@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import * as sns from '@aws-cdk/aws-sns';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as cognito from '@aws-cdk/aws-cognito';
+import * as s3 from '@aws-cdk/aws-s3';
 import { SNSLambda } from './sns-lambda';
 import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
@@ -60,14 +61,19 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       username: username
     });
 
+    const credentialsBucket = new s3.Bucket(this, "CredsBucket");
+
     const authenticationLambda = new AuthenticationLambda(this, "AuthenticationLambda", {
       stateTable,
       snsTopic,
       cognitoUsername: username,
       cognitoPassword: "SomePassword123!",
       userPoolClientId: client.userPoolClientId,
-      userPoolId: cognitoUserPool.userPoolId
+      userPoolId: cognitoUserPool.userPoolId,
+      credentialsBucket
     });
+
+
     
   }
 }

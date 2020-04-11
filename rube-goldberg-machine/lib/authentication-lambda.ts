@@ -4,6 +4,7 @@ import * as sns from '@aws-cdk/aws-sns';
 import * as iam from '@aws-cdk/aws-iam';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as lambdaEventSource from '@aws-cdk/aws-lambda-event-sources';
+import * as s3 from '@aws-cdk/aws-s3';
 import path = require('path');
 
 export interface AuthenticationLambdaProps {
@@ -13,6 +14,7 @@ export interface AuthenticationLambdaProps {
     readonly cognitoPassword: string;
     readonly userPoolId: string;
     readonly userPoolClientId: string;
+    readonly credentialsBucket: s3.Bucket;
 }
 export class AuthenticationLambda extends cdk.Construct {
   constructor(scope: cdk.Construct, id: string, props: AuthenticationLambdaProps) {
@@ -28,11 +30,14 @@ export class AuthenticationLambda extends cdk.Construct {
         "USERNAME": props.cognitoUsername,
         "PASSWORD": props.cognitoPassword,
         "USER_POOL_ID": props.userPoolId,
-        "USER_POOL_CLIENT_ID": props.userPoolClientId
-      }
+        "USER_POOL_CLIENT_ID": props.userPoolClientId,
+        "BUCKET_NAME": props.credentialsBucket.bucketName
+      },
+      timeout: cdk.Duration.seconds(120)
     });
 
     props.stateTable.grant(authenticationLambda, "dynamodb:PutItem");
+    props.credentialsBucket.grantPut(authenticationLambda);
 
     const authPolicy = new iam.PolicyStatement({
       actions: ["cognito-idp:AdminSetUserPassword", "cognito-idp:InitiateAuth"],
