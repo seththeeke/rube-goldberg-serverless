@@ -8,6 +8,8 @@ import path = require('path');
 export interface AuthenticationLambdaProps {
     readonly stateTable: dynamodb.Table;
     readonly snsTopic: sns.Topic;
+    readonly cognitoUsername: string;
+    readonly cognitoPassword: string;
 }
 export class AuthenticationLambda extends cdk.Construct {
   constructor(scope: cdk.Construct, id: string, props: AuthenticationLambdaProps) {
@@ -19,7 +21,9 @@ export class AuthenticationLambda extends cdk.Construct {
       runtime: lambda.Runtime.NODEJS_12_X,
       tracing: lambda.Tracing.ACTIVE,
       environment: {
-        "TABLE_NAME": props.stateTable.tableName
+        "TABLE_NAME": props.stateTable.tableName,
+        "USERNAME": props.cognitoUsername,
+        "PASSWORD": props.cognitoPassword
       }
     });
 

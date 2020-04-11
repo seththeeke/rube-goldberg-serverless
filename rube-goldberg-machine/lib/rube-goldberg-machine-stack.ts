@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as sns from '@aws-cdk/aws-sns';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
+import * as cognito from '@aws-cdk/aws-cognito';
 import { SNSLambda } from './sns-lambda';
 import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
@@ -32,9 +33,30 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       endpoint: webSocketApi.ref + ".execute-api.us-east-1.amazonaws.com/prod"
     });
 
+    const cognitoUserPool = new cognito.UserPool(this, "UserPool", {
+      userPoolName: "PrivateUserPool",
+      signInAliases: {
+        username: true,
+      }
+    });
+    cognitoUserPool.addClient("PrivateAppClient", {
+      userPoolClientName: "AuthLambdaClient",
+      authFlows: {
+        userPassword: true,
+        refreshToken: true
+      }
+    });
+    let username = "authenticationLambdaUser"
+    const authLambdaUser = new cognito.CfnUserPoolUser(this, "AuthLambdaUser", {
+      userPoolId: cognitoUserPool.userPoolId,
+      username: username
+    });
+
     const authenticationLambda = new AuthenticationLambda(this, "AuthenticationLambda", {
       stateTable,
-      snsTopic
+      snsTopic,
+      cognitoUsername: username,
+      cognitoPassword: "SomePassword"
     });
     
   }
