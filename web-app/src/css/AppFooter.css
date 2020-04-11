@@ -1,0 +1,23 @@
+.app-footer-container {
+    text-align: center;
+}
+
+.footer-text-container {
+    display: inline-block;
+    margin-bottom: 3px;
+    border-top: 1px solid grey;
+    margin-top: 5px;
+}
+
+.footer-text {
+    display:inline-block;
+    font-size: 11px;
+    color: grey;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.footer-text:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
