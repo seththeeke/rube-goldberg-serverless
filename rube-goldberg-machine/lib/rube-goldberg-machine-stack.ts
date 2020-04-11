@@ -1,15 +1,10 @@
 import * as cdk from '@aws-cdk/core';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as apigateway from '@aws-cdk/aws-apigateway';
-import * as iam from '@aws-cdk/aws-iam';
 import * as sns from '@aws-cdk/aws-sns';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import path = require('path');
 import { SNSLambda } from './sns-lambda';
-import { OnConnectLambda } from './on-connect-lambda';
-import { OnDisconnectLambda } from './on-disconnect-lambda';
 import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
+import { AuthenticationLambda } from './authentication-lambda';
 
 export class RubeGoldbergMachineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -35,6 +30,11 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       connectionTable: webSocketApi.connectionTable,
       stateTable,
       endpoint: webSocketApi.ref + ".execute-api.us-east-1.amazonaws.com/prod"
+    });
+
+    const authenticationLambda = new AuthenticationLambda(this, "AuthenticationLambda", {
+      stateTable,
+      snsTopic
     });
     
   }
