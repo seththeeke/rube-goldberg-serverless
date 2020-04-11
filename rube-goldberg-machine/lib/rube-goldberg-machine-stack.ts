@@ -6,6 +6,7 @@ import { SNSLambda } from './sns-lambda';
 import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
 import { AuthenticationLambda } from './authentication-lambda';
+import { PreTokenTriggerLambda } from './pre-token-trigger-lambda';
 
 export class RubeGoldbergMachineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -33,13 +34,20 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       endpoint: webSocketApi.ref + ".execute-api.us-east-1.amazonaws.com/prod"
     });
 
+    // Authentication Stuffz
+
+    const preTokenLambdaTrigger = new PreTokenTriggerLambda(this, "PreTokenLambdaTrigger");
+
     const cognitoUserPool = new cognito.UserPool(this, "UserPool", {
       userPoolName: "PrivateUserPool",
       signInAliases: {
         username: true,
+      },
+      lambdaTriggers: {
+        preTokenGeneration: preTokenLambdaTrigger
       }
     });
-    cognitoUserPool.addClient("PrivateAppClient", {
+    const client = cognitoUserPool.addClient("PrivateAppClient", {
       userPoolClientName: "AuthLambdaClient",
       authFlows: {
         userPassword: true,
@@ -56,7 +64,9 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       stateTable,
       snsTopic,
       cognitoUsername: username,
-      cognitoPassword: "SomePassword"
+      cognitoPassword: "SomePassword123!",
+      userPoolClientId: client.userPoolClientId,
+      userPoolId: cognitoUserPool.userPoolId
     });
     
   }

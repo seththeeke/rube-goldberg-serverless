@@ -18,6 +18,7 @@ class Home extends React.Component {
          console.log(JSON.parse(event.data));
          let events = JSON.parse(event.data);
          for (let event of events){
+            console.log(event.dynamodb.NewImage.requestId.S);
             console.log(event.dynamodb.NewImage.state.S);
          }
       }
