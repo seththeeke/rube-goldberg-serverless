@@ -17,7 +17,7 @@ class Home extends React.Component {
    constructor(props){
       super(props);
       this.state = {
-         state: "Starting",
+         state: "Starting...",
          requestId: "",
          tableRows: [],
          machineStarted: false,
