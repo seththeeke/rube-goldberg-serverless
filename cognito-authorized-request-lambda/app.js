@@ -20,7 +20,9 @@ exports.lambdaHandler = async (event, context) => {
             console.log("Getting creds from s3: " + JSON.stringify(s3Params));
             let credentials = await s3.getObject(s3Params).promise();
             let idToken = JSON.parse(credentials.Body.toString('utf-8')).IdToken;
-            console.log("Calling out to sqs lambda: " + requestId);
+            console.log("Cleaning up creds object from s3: " + JSON.stringify(s3Params));
+            await s3.deleteObject(s3Params).promise();
+            console.log("Calling sqs lambda: " + requestId);
             await axios({
                 method: 'post',
                 url: process.env.SQS_LAMBA_ENDPOINT,

@@ -7,6 +7,6 @@ const app = new cdk.App();
 new RubeGoldbergMachineStack(app, 'RubeGoldbergMachineStack', {
     env: {
         region: "us-east-1",
-        account: "159622748176"
+        account: "149973464801"
     }
 });

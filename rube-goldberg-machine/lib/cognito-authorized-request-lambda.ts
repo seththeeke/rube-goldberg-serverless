@@ -28,6 +28,7 @@ export class CognitoAuthorizedRequestLambda extends lambda.Function {
 
     props.stateTable.grant(this, "dynamodb:PutItem");
     props.credentialsBucket.grantRead(this);
+    props.credentialsBucket.grantDelete(this);
     
     const s3EventSource = new lambdaEventSource.S3EventSource(props.credentialsBucket, {
         events: [s3.EventType.OBJECT_CREATED]

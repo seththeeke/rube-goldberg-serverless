@@ -4,7 +4,7 @@ class Home extends React.Component {
    constructor(props){
       super(props);
       this.startMachine = this.startMachine.bind(this);
-      this.ws = new WebSocket("wss://1wrovkfjw7.execute-api.us-east-1.amazonaws.com/prod/");
+      this.ws = new WebSocket("wss://qdjkqebo39.execute-api.us-east-1.amazonaws.com/prod/");
    }
 
    componentDidMount() {
