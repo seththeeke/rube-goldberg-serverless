@@ -45,18 +45,18 @@ exports.lambdaHandler = async (event, context) => {
         console.log("Writing sns state update: " + JSON.stringify(startDdbParams));
         await ddb.putItem(snsDBUpdate).promise();
 
-        return respond();
+        return respond(context.awsRequestId);
     } catch (err) {
         console.log(err);
         return error(err);
     }
 };
 
-function respond(){
+function respond(requestId){
     return {
         'statusCode': 200,
         'body': JSON.stringify({
-            'data': "Machine Started!"
+            'data': requestId
         }),
         'headers': {
             "Content-Type": "application/json",

@@ -10,9 +10,9 @@ class AppRouter extends React.Component {
         return (
             <div>
                 <Switch>
-                    <Route path="/some-other-page">
+                    {/* <Route path="/some-other-page">
                         <div>Some Other Page</div>
-                    </Route>
+                    </Route> */}
                     <Route path="/">
                         <Home
                             rubeGoldbergMachineService={this.props.rubeGoldbergMachineService}

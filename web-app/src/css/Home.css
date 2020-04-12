@@ -1,0 +1,80 @@
+.start-machine-button {
+    font-size: 100px;
+    margin-top: 25px;
+    border-radius: 100px;
+    background-color: #FF9900;
+    color: white;
+    padding: 10px 40px;
+}
+
+.start-machine-button:hover {
+    background-color: white;
+    color: #FF9900;
+}
+
+.text {
+    height: 70px;
+}
+
+.slogan {
+    height: 40px;
+}
+
+.definition {
+    height: 200px;
+}
+
+.request-id-text {
+    font-size: 20px;
+    padding: 10px;
+}
+
+.request-id-val {
+    font-weight: bold;
+}
+
+.state-table-container {
+    display: inline-block;
+}
+
+.tabler-header-row {
+    background-color: #FF9900;
+    color: white;
+}
+
+.table-row {
+
+}
+
+.table-header {
+
+}
+
+.table-value {
+
+}
+
+.location-col {
+    width: 15%;
+    border: solid 1px black;
+}
+
+.description-col {
+    width: 30%;
+    border: solid 1px black;
+}
+
+.state-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 10px;
+}
+
+.state-icon {
+    height: 100px;
+    padding: 10px;
+}
+
+.current-state-text {
+    font-size: 15px;
+}
