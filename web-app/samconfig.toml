@@ -2,9 +2,12 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "FitnessStaticWebsite-Gamma"
-s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1gu289f3keoz9"
-s3_prefix = "web-app-gamma"
+stack_name = "RubeGoldbergServerlessWebsite"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-ft1mrb98gkma"
+s3_prefix = "RubeGoldbergServerlessWebsite"
 region = "us-east-1"
+profile = "rgm"
+confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
+parameter_overrides = "S3StaticWebsiteBucketNameParameter=\"rubegoldbergserverless.com\" DomainNameParameter=\"rubegoldbergserverless.com\" HostedZoneNameParameter=\"rubegoldbergserverless.com.\""
 
