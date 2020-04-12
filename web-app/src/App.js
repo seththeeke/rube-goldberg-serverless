@@ -1,8 +1,6 @@
 import React from 'react';
 import './App.css';
 import AppRouter from './components/AppRouter.js';
-// import { Link } from "react-router-dom";
-// import AppFooter from './components/AppFooter.js';
 import { BrowserRouter as Router } from "react-router-dom";
 import RubeGoldbergMachineService from './services/RubeGoldbergMachineService.js';
 import AmplifyRequestService from './services/AmplifyRequestService.js';
@@ -24,14 +22,12 @@ class App extends React.Component {
     return (
       <div className="App">          
         <Router>
-          {/* <Link to="/some-other-page">Some Other Page</Link> */}
           <AppRouter
             rubeGoldbergMachineService={this.rubeGoldbergMachineService}
           ></AppRouter>
           <a target="_blank" rel="noopener noreferrer" href="https://www.github.com/seththeeke/rube-goldberg-serverless">
             <img className="icon" alt="github" src={github}></img>
           </a>
-          {/* <AppFooter></AppFooter> */}
         </Router>
       </div>
     );

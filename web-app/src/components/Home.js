@@ -17,7 +17,7 @@ class Home extends React.Component {
    constructor(props){
       super(props);
       this.state = {
-         state: "",
+         state: "Starting",
          requestId: "",
          tableRows: [],
          machineStarted: false,
@@ -96,24 +96,17 @@ class Home extends React.Component {
             console.log("New state: " + newState);
             if (this.state.requestId.length > 0){
                if (this.state.requestId === event.dynamodb.NewImage.requestId.S){
-                  if (this.state.state){
-                     let rows = this.state.tableRows;
-                     if (newState !== "Done"){
-                        let row = this.buildTableRow(this.state.state, this.state.tableRows.length);
-                        rows.unshift(row);
-                     }
-                     this.setState({
-                        state: newState,
-                        tableRows: rows,
-                        stateIcon: this.descriptionMap[newState.replace(/ /g,'')].image,
-                        done: newState === "Done"
-                     });
-                  } else {
-                     this.setState({
-                        state: newState,
-                        stateIcon: this.descriptionMap[newState.replace(/ /g,'')].image
-                     });
+                  let rows = this.state.tableRows;
+                  if (this.state.state !== "Done"){
+                     let row = this.buildTableRow(newState, this.state.tableRows.length);
+                     rows.unshift(row);
                   }
+                  this.setState({
+                     state: newState,
+                     tableRows: rows,
+                     stateIcon: this.descriptionMap[newState.replace(/ /g,'')].image,
+                     done: newState === "Done"
+                  });
                }
             }
          }
