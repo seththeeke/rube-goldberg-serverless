@@ -12,6 +12,16 @@
     color: #FF9900;
 }
 
+.reset-button {
+    background-color: #FF9900;
+    color: white;
+}
+
+.reset-button:hover {
+    background-color: white;
+    color: #FF9900;
+}
+
 .text {
     height: 70px;
 }

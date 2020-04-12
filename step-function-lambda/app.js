@@ -5,21 +5,17 @@ exports.lambdaHandler = async (event, context) => {
     try {
         console.log(event);
         AWS.config.update({region: process.env.AWS_REGION});
-        let stepfunctions = new AWS.StepFunctions({apiVersion: '2016-11-23'});
-        let records = event.Records;
-        for (let record of records) {
-            let requestId = record.body;
-            await updateState("Start Step Function Lambda", requestId);
-            let stepFunctionInput = {
-                requestId
-            };
-            var stepFunctionStartExecutionParams = {
-                stateMachineArn: process.env.STATE_MACHINE_ARN,
-                input: "{\"requestId\" : \"" + requestId + "\"}"
-            };
-            console.log("Starting step function execution: " + JSON.stringify(stepFunctionStartExecutionParams));
-            await stepfunctions.startExecution(stepFunctionStartExecutionParams).promise();
-        }
+        console.log("Updating state to step function lambda: " + event.requestId);
+        await updateState("Step Function Lambda", event.requestId);
+
+        console.log("Updating state to done: " + event.requestId);
+        await updateState("Done", event.requestId);
+
+        console.log("Updating state to done1: " + event.requestId);
+        await updateState("Done1", event.requestId);
+
+        console.log("Updating state to done2: " + event.requestId);
+        await updateState("Done2", event.requestId);
         
         return { statusCode: 200, body: JSON.stringify(event) };
     } catch (err) {

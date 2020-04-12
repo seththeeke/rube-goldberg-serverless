@@ -5,6 +5,7 @@ import * as cognito from '@aws-cdk/aws-cognito';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as sqs from '@aws-cdk/aws-sqs';
 import * as sfn from '@aws-cdk/aws-stepfunctions';
+import * as tasks from '@aws-cdk/aws-stepfunctions-tasks';
 import { SNSLambda } from './sns-lambda';
 import { StateChangeListenerLambda } from './state-change-listener-lambda';
 import { WebSocketApi } from './web-socket-api';
@@ -12,6 +13,7 @@ import { AuthenticationLambda } from './authentication-lambda';
 import { CognitoAuthorizedRequestLambda } from './cognito-authorized-request-lambda';
 import { SQSLambda } from './sqs-lambda';
 import { StartStepFunctionLambda } from './start-step-function-lambda';
+import { StepFunctionLambda } from './step-function-lambda';
 
 export class RubeGoldbergMachineStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -94,9 +96,27 @@ export class RubeGoldbergMachineStack extends cdk.Stack {
       sqsLambdaEndpoint: "https://" + sqsLambda.cognitoProtectedApiGateway.restApiId + ".execute-api.us-east-1.amazonaws.com/prod/sqs-lambda"
     });
 
+    const stepFunctionLambda = new StepFunctionLambda(this, "StepFunctionLambda", {
+      stateTable
+    });
+
+    const stepFunctionJob = new sfn.Task(this, 'StepFunctionLambdaTask', {
+      task: new tasks.InvokeFunction(stepFunctionLambda, {
+        payload: {
+          "requestId.$": "$.requestId"
+        }
+      })
+    });
+
+    const stepFunctionStateMachine = new sfn.StateMachine(this, 'StateMachine', {
+        definition: stepFunctionJob,
+        timeout: cdk.Duration.minutes(5)
+    });
+
     const startStepFunctionLambda = new StartStepFunctionLambda(this, "StartStepFunctionLambda", {
       sqsQueue,
-      stateTable
+      stateTable,
+      stepFunctionStateMachine
     });
 
   }

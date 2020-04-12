@@ -8,15 +8,15 @@ Description: >
 Parameters:
   S3StaticWebsiteBucketNameParameter: 
     Type: String
-    Default: rube-goldberg.myworkoutjournals.com
+    Default: rubegoldbergserverless.com
     Description: The bucket name for the static web content
   DomainNameParameter:
     Type: String
-    Default: rube-goldberg.myworkoutjournals.com
+    Default: rubegoldbergserverless.com
     Description: The domain name for the website, this needs to be registered prior
   HostedZoneNameParameter: 
     Type: String
-    Default: myworkoutjournals.com.
+    Default: rubegoldbergserverless.com.
     Description: The name of the hosted zone, this was created when you registered the domain name
 
 # Resources

@@ -24,19 +24,14 @@ exports.lambdaHandler = async (event, context) => {
     });
     
     const dataChangeEvents = event.Records;
+    console.log(dataChangeEvents);
     
     const postCalls = connectionData.Items.map(async ({ connectionId }) => {
       try {
-        console.log("CONNECTION ID");
-        console.log(connectionId);
         await apigwManagementApi.postToConnection({ ConnectionId: connectionId.S, Data: JSON.stringify(dataChangeEvents) }).promise();
       } catch (e) {
-        if (e.statusCode === 410) {
-          console.log(`Found stale connection, deleting ${connectionId.S}`);
-          await ddb.deleteItem({ TableName: process.env.TABLE_NAME, Key: { connectionId: connectionId.S } }).promise();
-        } else {
-          console.log(e);
-        }
+        console.log(`Found stale connection, deleting ${connectionId.S}`);
+        await ddb.deleteItem({ TableName: process.env.TABLE_NAME, Key: { connectionId: connectionId.S } }).promise();
       }
     });
     

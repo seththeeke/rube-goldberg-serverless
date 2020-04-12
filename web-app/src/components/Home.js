@@ -11,6 +11,7 @@ import cognito from './../img/Amazon-Cognito@4x.png';
 import sns from './../img/Amazon-Simple-Notification-Service-SNS_light-bg@4x.png';
 import apigateway from './../img/Amazon-API-Gateway@4x.png';
 import stepfunction from './../img/AWS-Step-Functions_light-bg@4x.png';
+import cdk from './../img/AWS-Cloud-Development-Kit@4x.png';
 
 class Home extends React.Component {
    constructor(props){
@@ -20,20 +21,29 @@ class Home extends React.Component {
          requestId: "",
          tableRows: [],
          machineStarted: false,
-         stateIcon: apigateway
+         stateIcon: apigateway,
+         done: false
       }
       this.descriptionMap = {
-         "StartStepFunctionLambda": {
-            description: "Your SQS message has been read and is on its way to trigger a step function machine",
+         "Done": {
+            description: "Machine is Done!",
+            image: cdk
+         },
+         "StepFunctionLambda": {
+            description: "A step function machine has been started and a lambda function has been invoked as part of that machine",
             image: stepfunction
          },
-         "SQSLambda": {
-            description: "Your SQS message has been read and is on it's way to SQS",
+         "StartStepFunctionLambda": {
+            description: "Your SQS message has been read and is on its way to trigger a step function machine",
             image: lambda
          },
          "SQS": {
             description: "Your request is on an SQS Queue",
             image: sqs
+         },
+         "SQSLambda": {
+            description: "Your SQS message has been read and is on it's way to SQS",
+            image: lambda
          },
          "CognitoAuthorizedRequestLambda": {
             description: "Your request credentials are being used to access a secure endpoint to put the request on SQS",
@@ -67,6 +77,7 @@ class Home extends React.Component {
 
       this.buildTableRow = this.buildTableRow.bind(this);
       this.startMachine = this.startMachine.bind(this);
+      this.reset = this.reset.bind(this);
       this.ws = new WebSocket("wss://qdjkqebo39.execute-api.us-east-1.amazonaws.com/prod/");
    }
 
@@ -79,17 +90,23 @@ class Home extends React.Component {
          let events = JSON.parse(event.data);
          for (let event of events){
             let newState = event.dynamodb.NewImage.state.S;
+            if (newState.indexOf("Done") !== -1){
+               newState = "Done";
+            }
             console.log("New state: " + newState);
             if (this.state.requestId.length > 0){
                if (this.state.requestId === event.dynamodb.NewImage.requestId.S){
                   if (this.state.state){
-                     let row = this.buildTableRow(this.state.state, this.state.tableRows.length);
                      let rows = this.state.tableRows;
-                     rows.unshift(row);
+                     if (newState !== "Done"){
+                        let row = this.buildTableRow(this.state.state, this.state.tableRows.length);
+                        rows.unshift(row);
+                     }
                      this.setState({
                         state: newState,
                         tableRows: rows,
-                        stateIcon: this.descriptionMap[newState.replace(/ /g,'')].image
+                        stateIcon: this.descriptionMap[newState.replace(/ /g,'')].image,
+                        done: newState === "Done"
                      });
                   } else {
                      this.setState({
@@ -118,7 +135,7 @@ class Home extends React.Component {
    }
 
    startMachine(){
-      if (!this.requestId){
+      if (!this.state.requestId.length > 0){
          this.props.rubeGoldbergMachineService.startRubeGoldbergMachine().then(function(event){
             this.setState({
                requestId: event.data,
@@ -126,6 +143,17 @@ class Home extends React.Component {
             });
          }.bind(this));
       }
+   }
+
+   reset(){
+      this.setState({
+         state: "",
+         requestId: "",
+         tableRows: [],
+         machineStarted: false,
+         stateIcon: apigateway,
+         done: false
+      });
    }
 
    render() {
@@ -141,6 +169,12 @@ class Home extends React.Component {
             </div>
             <div hidden={!this.state.machineStarted}>
                <div className="request-id-text">Your request id is: <span className="request-id-val">{this.state.requestId}</span></div>
+               <div hidden={!this.state.done}>
+                  You actually wasted your time running this machine, congrats, feel free to check this project out on github to see the full architecture and how it is made
+                  <div>
+                     <button className="reset-button" onClick={this.reset}>Reset!</button>
+                  </div>
+               </div>
                <div className="current-state-text">{this.state.state}</div>
                <div><img className="state-icon" src={this.state.stateIcon} alt="stateIcon"/></div>
                <div className="state-table-container">
