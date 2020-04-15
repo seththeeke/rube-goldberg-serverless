@@ -24,7 +24,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm run build rube-goldberg-machine/ --if-present
+    - run: npm build rube-goldberg-machine/
     - run: npm test
       env:
         CI: true
