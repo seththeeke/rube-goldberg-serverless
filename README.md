@@ -1,3 +1,5 @@
+![Node.js CI](https://github.com/seththeeke/rube-goldberg-serverless/workflows/Node.js%20CI/badge.svg?branch=master)
+
 # Serverless Rube Goldberg Machine
 
 This project is a rube goldberg machine showing off all the cool capabilities of serverless tech! The process that executes is a complete waste of time and money! 
