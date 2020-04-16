@@ -1,4 +1,4 @@
-![Node.js CI](https://github.com/seththeeke/rube-goldberg-serverless/workflows/Node.js%20CI/badge.svg)
+![Node.js CI](https://github.com/seththeeke/rube-goldberg-serverless/workflows/Node.js%20CI/badge.svg?branch=master)
 
 # Serverless Rube Goldberg Machine
 
