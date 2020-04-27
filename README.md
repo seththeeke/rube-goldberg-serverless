@@ -4,7 +4,7 @@
 
 This project is a rube goldberg machine showing off all the cool capabilities of serverless tech! The process that executes is a complete waste of time and money! 
 
-I built it to learn a bit more about serverless tech, their performance, and the aws cloud development kit. What ensures is series of aws lambda functions triggered by a number of services including sns, sqs, api gateway, secure api gateways, s3, step functions, and dynamodb streams. 
+I built it to learn a bit more about serverless tech, their performance, and the aws cloud development kit. What ensues is a series of AWS lambda functions triggered by a number of services including SNS, SQS, Api Gateway, Authorized API Gateways, S3, Step Functions, and Dynamodb Streams. 
 
 ## Architecture
 
